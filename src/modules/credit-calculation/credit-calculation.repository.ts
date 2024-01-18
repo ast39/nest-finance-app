@@ -2,10 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { IPrismaTR, PrismaService } from '../../prisma';
 import { CreditCalculationCreateDto } from './dto/credit-calculation.create.dto';
 import { CreditCalculationDto } from './dto/credit-calculation.dto';
+import { ICalculationUnique } from '../../common/interfaces/credit-calculation.interface';
 
 @Injectable()
 export class CreditCalculationRepository {
   constructor(private prisma: PrismaService) {}
+
+  // Расчет по ID
+  async show(
+    cursor: ICalculationUnique,
+    tx?: IPrismaTR,
+  ): Promise<CreditCalculationDto | null> {
+    const prisma = tx ?? this.prisma;
+
+    return prisma.creditCalculation.findUnique({
+      where: cursor,
+    });
+  }
 
   // Добавление расчета
   async store(
