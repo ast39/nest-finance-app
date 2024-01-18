@@ -1,0 +1,112 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId       Int          @id @default(autoincrement()) @map("user_id")
+  email        String       @unique @map("email") @db.VarChar(128)
+  password     String?      @map("password") @db.VarChar(128)
+  name         String?      @map("name") @db.VarChar(128)
+  status       EUserStatus? @default(active) @map("status")
+  refreshToken String?      @map("refresh_token") @db.VarChar(128)
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  calculations CreditCalculation[]
+  checkings    CreditChecking[]
+  credits      Credit[]
+
+  @@map("users")
+}
+
+model CreditCalculation {
+  recordId    Int            @id @default(autoincrement()) @map("record_id")
+  ownerId     Int            @map("owner_id")
+  title       String?        @map("title") @db.VarChar(128)
+  paymentType EPaymentType   @default(annuitent) @map("payment_type")
+  subject     ECreditSubject @default(payment) @map("subject")
+  amount      Float?         @map("amount")
+  percent     Float?         @map("percent")
+  period      Int?           @map("period")
+  payment     Float?         @map("payment")
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  owner User @relation(fields: [ownerId], references: [userId])
+
+  @@map("credit_calculations")
+}
+
+model CreditChecking {
+  recordId  Int      @id @default(autoincrement()) @map("record_id")
+  ownerId   Int      @map("owner_id")
+  title     String?  @map("title") @db.VarChar(128)
+  amount    Float?   @map("amount")
+  percent   Float?   @map("percent")
+  period    Int?     @map("period")
+  payment   Float?   @map("payment")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  owner User @relation(fields: [ownerId], references: [userId])
+
+  @@map("credit_checkings")
+}
+
+model Credit {
+  creditId   Int      @id @default(autoincrement()) @map("credit_id")
+  ownerId    Int      @map("owner_id")
+  title      String   @map("title") @db.VarChar(128)
+  creditor   String   @map("creditor") @db.VarChar(128)
+  amount     Float?   @map("amount")
+  percent    Float?   @map("percent")
+  period     Int?     @map("period")
+  payment    Float?   @map("payment")
+  openedAt   DateTime @map("opened_at") @db.Timestamptz(3)
+  paymentDay Int      @map("payment_day")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  owner    User      @relation(fields: [ownerId], references: [userId])
+  payments Payment[]
+
+  @@map("credits")
+}
+
+model Payment {
+  paymentId Int       @id @default(autoincrement()) @map("payment_id")
+  creditId  Int       @map("credit_id")
+  ownerId   Int       @map("owner_id")
+  amount    Float     @map("amount")
+  payedAt   DateTime? @default(now()) @map("payed_day") @db.Timestamptz(3)
+  note      String?   @map("note")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  credit Credit @relation(fields: [creditId], references: [creditId])
+
+  @@map("payments")
+}
+
+enum EUserStatus {
+  active
+  blocked
+}
+
+enum EPaymentType {
+  annuitent
+  differ
+}
+
+enum ECreditSubject {
+  period
+  percent
+  amount
+  payment
+}
