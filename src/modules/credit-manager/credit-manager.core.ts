@@ -137,11 +137,9 @@ export class CreditManagerCore {
   ): Promise<CreditPaymentDto[]> {
     const details: CreditPaymentDto[] = [];
 
-    // let overpay: number = 0;
-    // let payments: number = 0;
     let insetBalance: number = credit.amount;
-    let oldPaymentDate = new Date();
-    let currentPaymentDate = this.plusMonth(oldPaymentDate);
+    let currentPaymentDate = new Date();
+    let nextPaymentDate = this.plusMonth(currentPaymentDate);
 
     const paymentBody = Math.round(credit.amount / credit.period);
 
@@ -150,8 +148,8 @@ export class CreditManagerCore {
 
       const currentPercent: number = Math.ceil(
         this.getPercentByPeriod(
-          oldPaymentDate,
           currentPaymentDate,
+          nextPaymentDate,
           insetBalance,
           credit.percent,
         ),
@@ -174,22 +172,19 @@ export class CreditManagerCore {
         outsetBalance = 0;
       }
 
-      details[i] = {
+      details.push({
         paymentDate: currentPaymentDate,
         insetBalance: insetBalance,
         payment: currentPayment,
         percent: currentPercent,
         body: currentBody,
         outsetBalance: outsetBalance,
-        status: true,
-      };
+        status: false,
+      });
 
-      // overpay += currentPercent;
-      // payments += credit.payment;
       insetBalance = outsetBalance;
-
-      oldPaymentDate = currentPaymentDate;
-      currentPaymentDate = this.plusMonth(currentPaymentDate);
+      currentPaymentDate = nextPaymentDate;
+      nextPaymentDate = this.plusMonth(nextPaymentDate);
     }
 
     return details;

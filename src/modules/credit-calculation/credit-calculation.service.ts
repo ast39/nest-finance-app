@@ -16,9 +16,7 @@ export class CreditCalculationService {
   ) {}
 
   // Расчет по ID
-  async getCalculation(
-    calculationId: number,
-  ): Promise<CreditCalculationDto | null> {
+  async getCalculation(calculationId: number): Promise<CreditCalculationDto> {
     return this.prisma.$transaction(async (tx) => {
       const calculation = await this.creditCalcRepo.show(
         { recordId: calculationId },
@@ -49,6 +47,12 @@ export class CreditCalculationService {
             await this.creditManagerService.findPayment(calculation);
           break;
       }
+
+      calculation.overpay = calculation.payments
+        .map((element) => {
+          return element.percent;
+        })
+        .reduce((percent, x) => percent + x, 0);
 
       return calculation;
     });
