@@ -19,10 +19,13 @@ export class UserService {
   ) {}
 
   // Список пользователей
-  async userList(userFilter: UserFilterDto): Promise<UserDto[]> {
-    const { page = 1, limit = 10 } = userFilter;
+  async userList(
+    userFilter: UserFilterDto,
+  ): Promise<PaginationInterface<UserDto>> {
+    const page = Number(userFilter.page ?? 1);
+    const limit = Number(userFilter.limit ?? 10);
 
-    return this.prisma.$transaction(async (tx) => {
+    const users = await this.prisma.$transaction(async (tx) => {
       const users = await this.userRepo.index(
         {
           skip: (page - 1) * limit,
@@ -34,12 +37,34 @@ export class UserService {
         },
         tx,
       );
+
       if (!users) {
         throw new UserNotFoundException();
       }
 
       return users;
     });
+
+    const totalRows = await this.prisma.$transaction(async (tx) => {
+      return await this.userRepo.totalRows({
+        where: {
+          status: userFilter.status != null ? userFilter.status : undefined,
+        },
+      });
+    });
+
+    return {
+      data: users,
+      meta: {
+        currentPage: page,
+        lastPage: Math.ceil(totalRows / limit),
+        perPage: limit,
+        from: (page - 1) * limit + 1,
+        to: (page - 1) * limit + limit,
+        total: totalRows,
+        path: 'ssdssd',
+      },
+    };
   }
 
   // Пользователь по ID

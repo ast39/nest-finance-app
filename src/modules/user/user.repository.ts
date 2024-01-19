@@ -13,6 +13,23 @@ import { UserUpdateDto } from './dto/user.update.dto';
 export class UserRepository {
   constructor(private prisma: PrismaService) {}
 
+  // Общее кол-во записей без пагинатора
+  async totalRows(
+    params: {
+      cursor?: IUserUnique;
+      where?: IUserFilter;
+    },
+    tx?: IPrismaTR,
+  ): Promise<number> {
+    const { cursor, where } = params;
+    const prisma = tx ?? this.prisma;
+
+    return prisma.user.count({
+      cursor,
+      where,
+    });
+  }
+
   // Список пользователей
   async index(
     params: {

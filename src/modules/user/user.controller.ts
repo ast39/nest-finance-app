@@ -8,8 +8,8 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
-  UsePipes,
-} from '@nestjs/common';
+  UsePipes, Query
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -25,6 +25,7 @@ import { AccessTokenGuard } from '../../common/guards/accessToken.guard';
 import { JoiValidationPipe } from '../../common/pipes/joy.validation.pipe';
 import { UserCreateDto } from './dto/user.create.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
+import { UserFilterDto } from "./dto/user.filter.dto";
 
 @ApiTags('Пользователи')
 @Controller('user')
@@ -44,11 +45,10 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
   @Get()
-  public async index(): Promise<UserDto[]> {
-    return this.userService.userList({
-      page: 1,
-      limit: 10,
-    });
+  public async index(
+    @Query() query: UserFilterDto,
+  ): Promise<PaginationInterface<UserDto>> {
+    return this.userService.userList(query);
   }
 
   @ApiOperation({
