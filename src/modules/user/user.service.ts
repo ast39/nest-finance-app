@@ -1,4 +1,4 @@
-import { Injectable, Req } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
 import { UserRepository } from './user.repository';
 import { UserFilterDto } from './dto/user.filter.dto';
@@ -10,7 +10,6 @@ import {
 import { PrismaService } from '../../prisma';
 import { UserCreateDto } from './dto/user.create.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
-import { Request } from 'express';
 
 @Injectable()
 export class UserService {
@@ -21,7 +20,7 @@ export class UserService {
 
   // Список пользователей
   async userList(
-    request: Request,
+    url: string,
     userFilter: UserFilterDto,
   ): Promise<PaginationInterface<UserDto>> {
     const page = Number(userFilter.page ?? 1);
@@ -57,8 +56,6 @@ export class UserService {
         tx,
       );
     });
-
-    const url = `${request.protocol}://${request.get('Host')}/api/users`;
 
     return {
       data: users,

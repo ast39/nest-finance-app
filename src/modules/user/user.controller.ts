@@ -27,6 +27,8 @@ import { UserCreateDto } from './dto/user.create.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
 import { UserFilterDto } from "./dto/user.filter.dto";
 import { Request } from "express";
+import { JwtUser } from "../../common/decorators/user.decorator";
+import { CurrentUrl } from "../../common/decorators/url.decorator";
 
 @ApiTags('Пользователи')
 @Controller('user')
@@ -47,10 +49,10 @@ export class UserController {
   @UseGuards(AccessTokenGuard)
   @Get()
   public async index(
-    @Req() req: Request,
+    @CurrentUrl('users') url: string,
     @Query() query: UserFilterDto,
   ): Promise<PaginationInterface<UserDto>> {
-    return this.userService.userList(req, query);
+    return this.userService.userList(url, query);
   }
 
   @ApiOperation({
