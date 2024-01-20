@@ -1,9 +1,20 @@
-import { PrismaClient } from '@prisma/client';
+import { EUserStatus, PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 async function main() {
   const password: string = await bcrypt.hash('root', 10);
-  console.info(password);
+
+  // Рутовый пользователь
+  await prisma.user.createMany({
+    data: [
+      {
+        email: 'root@gmail.com',
+        name: 'Root',
+        password: password,
+        status: EUserStatus.active,
+      },
+    ],
+  });
 }
 
 main()
