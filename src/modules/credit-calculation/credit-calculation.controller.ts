@@ -6,7 +6,6 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -59,11 +58,11 @@ export class CreditCalculationController {
   })
   @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
-  @UsePipes(new JoiValidationPipe(CreditCalculationCreateSchema))
   @Post()
   public async create(
     @JwtUser('id') userId: number,
-    @Body() body: CreditCalculationCreateDto,
+    @Body(new JoiValidationPipe(CreditCalculationCreateSchema))
+    body: CreditCalculationCreateDto,
   ): Promise<CreditCalculationDto> {
     return await this.creditCalculationService.createCalculation(userId, body);
   }

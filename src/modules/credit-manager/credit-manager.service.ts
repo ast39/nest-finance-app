@@ -44,7 +44,7 @@ export class CreditManagerService {
       throw new PeriodZeroException();
     }
 
-    credit.amount = this.creditManagerCore.getPercent(credit);
+    credit.percent = this.creditManagerCore.getPercent(credit);
 
     return credit.paymentType == EPaymentType.differ
       ? this.creditManagerCore.monthlyStatementDiff(credit)
@@ -63,7 +63,7 @@ export class CreditManagerService {
       throw new PercentZeroException();
     }
 
-    credit.amount = this.creditManagerCore.getPeriod(credit);
+    credit.period = this.creditManagerCore.getPeriod(credit);
 
     return credit.paymentType == EPaymentType.differ
       ? this.creditManagerCore.monthlyStatementDiff(credit)

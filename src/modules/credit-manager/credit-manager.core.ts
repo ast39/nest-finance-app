@@ -66,6 +66,7 @@ export class CreditManagerCore {
     let creditPercent: number = 0.1;
     const creditPaymentMin: number = credit.payment - credit.payment * 0.0001;
     const creditPaymentMax: number = credit.payment + credit.payment * 0.0001;
+
     let payment: number = this.findPaymentByParams(
       credit.amount,
       creditPercent,

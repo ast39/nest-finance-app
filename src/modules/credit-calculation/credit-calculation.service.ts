@@ -63,8 +63,8 @@ export class CreditCalculationService {
     ownerId: number,
     data: CreditCalculationCreateDto,
   ): Promise<CreditCalculationDto> {
-    return this.prisma.$transaction(async (tx) => {
-      return await this.creditCalcRepo.store(ownerId, data, tx);
-    });
+    const credit = await this.creditCalcRepo.store(ownerId, data);
+
+    return this.getCalculation(credit.recordId);
   }
 }

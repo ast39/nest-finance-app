@@ -10,12 +10,12 @@ import { ObjectSchema } from 'joi';
 @Injectable()
 export class JoiValidationPipe implements PipeTransform<any> {
   constructor(private schema: ObjectSchema) {}
-  transform(value: any, metatype: ArgumentMetadata) {
+  transform(query: any, metatype: ArgumentMetadata) {
     if (!metatype || !this.toValidate(metatype)) {
-      return value;
+      return query;
     }
-    const { error } = this.schema.validate(value);
-    console.info(error);
+
+    const { error } = this.schema.validate(query, { convert: true });
     const errors = error?.details?.reduce((object, value) => {
       return {
         ...object,
@@ -23,12 +23,12 @@ export class JoiValidationPipe implements PipeTransform<any> {
           validationError[value.type] ?? value.message.replace(/"/g, `'`),
       };
     }, {});
-    console.info(errors);
+
     if (errors) {
       throw new BadRequestException(errors);
     }
 
-    return value;
+    return query;
   }
 
   private toValidate(metatype): boolean {
