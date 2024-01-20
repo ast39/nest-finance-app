@@ -1,4 +1,4 @@
-declare interface MetaInterface {
+export interface MetaInterface {
   currentPage: number;
   lastPage: number;
   perPage: number;

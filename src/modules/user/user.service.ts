@@ -10,6 +10,7 @@ import {
 import { PrismaService } from '../../prisma';
 import { UserCreateDto } from './dto/user.create.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
+import { PaginationInterface } from '../../common/interfaces/pagination.interface';
 
 @Injectable()
 export class UserService {

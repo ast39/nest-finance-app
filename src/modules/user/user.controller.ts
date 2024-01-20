@@ -8,8 +8,9 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
-  UsePipes, Query, Req
-} from "@nestjs/common";
+  UsePipes,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -25,10 +26,9 @@ import { AccessTokenGuard } from '../../common/guards/accessToken.guard';
 import { JoiValidationPipe } from '../../common/pipes/joy.validation.pipe';
 import { UserCreateDto } from './dto/user.create.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
-import { UserFilterDto } from "./dto/user.filter.dto";
-import { Request } from "express";
-import { JwtUser } from "../../common/decorators/user.decorator";
-import { CurrentUrl } from "../../common/decorators/url.decorator";
+import { UserFilterDto } from './dto/user.filter.dto';
+import { CurrentUrl } from '../../common/decorators/url.decorator';
+import { PaginationInterface } from '../../common/interfaces/pagination.interface';
 
 @ApiTags('Пользователи')
 @Controller('user')
