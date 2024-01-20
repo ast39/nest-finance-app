@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma';
 import { CreditCalculationRepository } from './credit-calculation.repository';
 import { CreditCalculationCreateDto } from './dto/credit-calculation.create.dto';
 import { CreditCalculationDto } from './dto/credit-calculation.dto';
-import { CalculationNotFoundException } from './exeptions/credit-calculation.exeptions';
+import { CalculationNotFoundException, CalculationOtherOwnerException } from "./exeptions/credit-calculation.exeptions";
 import { CreditManagerService } from '../credit-manager/credit-manager.service';
 import { ECreditSubject } from '@prisma/client';
 
@@ -66,5 +66,30 @@ export class CreditCalculationService {
     const credit = await this.creditCalcRepo.store(ownerId, data);
 
     return this.getCalculation(credit.recordId);
+  }
+
+  // Удаление расчета
+  async deleteCalculation(
+    userId: number,
+    calculationId: number,
+  ): Promise<CreditCalculationDto> {
+    return this.prisma.$transaction(async (tx) => {
+      const calculation = await this.creditCalcRepo.show(
+        {
+          recordId: calculationId,
+        },
+        tx,
+      );
+      console.info(calculation);
+      if (!calculation) {
+        throw new CalculationNotFoundException();
+      }
+
+      if (calculation.ownerId != userId) {
+        throw new CalculationOtherOwnerException();
+      }
+
+      return this.creditCalcRepo.destroy({ recordId: calculationId });
+    });
   }
 }

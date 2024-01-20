@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -34,8 +35,6 @@ export class CreditCalculationController {
   @ApiOkResponse({
     description: 'Информация о расчете',
     type: CreditCalculationDto,
-    isArray: false,
-    status: 200,
   })
   @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
@@ -53,7 +52,6 @@ export class CreditCalculationController {
   @ApiResponse({
     description: 'Итоги расчета',
     type: CreditCalculationDto,
-    isArray: false,
     status: 201,
   })
   @ApiBearerAuth()
@@ -64,6 +62,27 @@ export class CreditCalculationController {
     @Body(new JoiValidationPipe(CreditCalculationCreateSchema))
     body: CreditCalculationCreateDto,
   ): Promise<CreditCalculationDto> {
-    return await this.creditCalculationService.createCalculation(userId, body);
+    return this.creditCalculationService.createCalculation(userId, body);
+  }
+
+  @ApiOperation({
+    summary: 'Удалить расчет',
+    description: 'Удалить расчет кредита',
+  })
+  @ApiOkResponse({
+    description: 'Удаленный расчет',
+    type: CreditCalculationDto,
+  })
+  @ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
+  @Delete(':calculation_id')
+  public async delete(
+    @JwtUser('id') userId: number,
+    @Param('calculation_id', ParseIntPipe) calculationId: number,
+  ): Promise<CreditCalculationDto> {
+    return this.creditCalculationService.deleteCalculation(
+      userId,
+      calculationId,
+    );
   }
 }

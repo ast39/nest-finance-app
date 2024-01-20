@@ -41,4 +41,16 @@ export class CreditCalculationRepository {
       },
     });
   }
+
+  // Удаление расчета
+  async destroy(
+    cursor: ICalculationUnique,
+    tx?: IPrismaTR,
+  ): Promise<CreditCalculationDto> {
+    const prisma = tx ?? this.prisma;
+
+    return prisma.creditCalculation.delete({
+      where: cursor,
+    });
+  }
 }
