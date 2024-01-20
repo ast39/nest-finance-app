@@ -29,7 +29,7 @@ export class CreditManagerService {
 
     return credit.paymentType == EPaymentType.differ
       ? this.creditManagerCore.monthlyStatementDiff(credit)
-      : this.creditManagerCore.monthlyStatementDiff(credit);
+      : this.creditManagerCore.monthlyStatementAnn(credit);
   }
 
   // Расчет кредита: неизвестен процент по кредиту
@@ -48,7 +48,7 @@ export class CreditManagerService {
 
     return credit.paymentType == EPaymentType.differ
       ? this.creditManagerCore.monthlyStatementDiff(credit)
-      : this.creditManagerCore.monthlyStatementDiff(credit);
+      : this.creditManagerCore.monthlyStatementAnn(credit);
   }
 
   // Расчет кредита: неизвестен срок кредита
@@ -67,7 +67,7 @@ export class CreditManagerService {
 
     return credit.paymentType == EPaymentType.differ
       ? this.creditManagerCore.monthlyStatementDiff(credit)
-      : this.creditManagerCore.monthlyStatementDiff(credit);
+      : this.creditManagerCore.monthlyStatementAnn(credit);
   }
 
   // Расчет кредита: неизвестен ежемесячный платеж

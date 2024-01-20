@@ -132,7 +132,7 @@ export class CreditManagerCore {
     return period;
   }
 
-  // График платежей
+  // График дифферинцированных платежей
   public async monthlyStatementDiff(
     credit: CreditCalculationDto,
   ): Promise<CreditPaymentDto[]> {
@@ -177,6 +177,62 @@ export class CreditManagerCore {
         paymentDate: currentPaymentDate,
         insetBalance: insetBalance,
         payment: currentPayment,
+        percent: currentPercent,
+        body: currentBody,
+        outsetBalance: outsetBalance,
+        status: false,
+      });
+
+      insetBalance = outsetBalance;
+      currentPaymentDate = nextPaymentDate;
+      nextPaymentDate = this.plusMonth(nextPaymentDate);
+    }
+
+    return details;
+  }
+
+  // График аннуитентных платежей
+  public async monthlyStatementAnn(
+    credit: CreditCalculationDto,
+  ): Promise<CreditPaymentDto[]> {
+    const details: CreditPaymentDto[] = [];
+
+    let insetBalance: number = credit.amount;
+    let currentPaymentDate = new Date();
+    let nextPaymentDate = this.plusMonth(currentPaymentDate);
+    let monthlyPayment = credit.payment;
+
+    for (let i: number = 1; i <= credit.period; i++) {
+      const currentPercent: number = Math.ceil(
+        this.getPercentByPeriod(
+          currentPaymentDate,
+          nextPaymentDate,
+          insetBalance,
+          credit.percent,
+        ),
+      );
+
+      let currentBody: number = monthlyPayment - currentPercent;
+      let outsetBalance: number = insetBalance - currentBody;
+
+      if (outsetBalance < 0) {
+        const difference = Math.abs(outsetBalance);
+
+        monthlyPayment -= difference;
+        currentBody -= difference;
+        outsetBalance = 0;
+      }
+
+      if (i == credit.period && outsetBalance > 0) {
+        monthlyPayment += outsetBalance;
+        currentBody += outsetBalance;
+        outsetBalance = 0;
+      }
+
+      details.push({
+        paymentDate: currentPaymentDate,
+        insetBalance: insetBalance,
+        payment: monthlyPayment,
         percent: currentPercent,
         body: currentBody,
         outsetBalance: outsetBalance,
