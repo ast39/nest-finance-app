@@ -126,9 +126,11 @@ export class CreditManagerService {
 
     const details = this.creditCoreChecking.details(credit, realPercent);
 
-    const percentPayed = array_sum(array_map(function ($e) {
-      return $e['percent'];
-    }, $details));
+    const percentPayed = details
+      .map((element) => {
+        return element.percent;
+      })
+      .reduce((percent, x) => percent + x, 0);
 
     return {
       credit: credit,
