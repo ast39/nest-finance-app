@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CreditCalculationModule } from './modules/credit-calculation/credit-calculation.module';
 import { CreditManagerModule } from './modules/credit-manager/credit-manager.module';
+import { CreditCheckingModule } from './modules/credit-checking/credit-checking.module';
 import * as path from 'path';
 
 @Module({
@@ -21,6 +22,7 @@ import * as path from 'path';
     AuthModule,
     CreditCalculationModule,
     CreditManagerModule,
+    CreditCheckingModule,
   ],
   controllers: [],
   providers: [],

@@ -80,7 +80,7 @@ export class CreditCalculationService {
         },
         tx,
       );
-      console.info(calculation);
+
       if (!calculation) {
         throw new CalculationNotFoundException();
       }

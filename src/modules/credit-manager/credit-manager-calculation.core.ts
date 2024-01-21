@@ -8,8 +8,8 @@ import {
 } from './exeptions/credit-manager.exeptions';
 
 @Injectable()
-export class CreditManagerCore {
-  // Расчет кредита: неизвестен ежемесячный рлатеж по кредиту
+export class CreditManagerCalculationCore {
+  // Расчет кредита: неизвестен ежемесячный платеж по кредиту
   public getPayment(credit: CreditCalculationDto): number {
     const monthlyPercent = credit.percent / 12 / 100;
 

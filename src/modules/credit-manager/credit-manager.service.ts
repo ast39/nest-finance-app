@@ -7,11 +7,15 @@ import {
 import { EPaymentType } from '@prisma/client';
 import { CreditCalculationDto } from '../credit-calculation/dto/credit-calculation.dto';
 import { CreditPaymentDto } from '../credit-calculation/dto/credit-payment.dto';
-import { CreditManagerCore } from './credit-manager.core';
+import { CreditManagerCalculationCore } from './credit-manager-calculation.core';
+import { CreditManagerCheckingCore } from "./credit-manager-checking.core";
 
 @Injectable()
 export class CreditManagerService {
-  constructor(private creditManagerCore: CreditManagerCore) {}
+  constructor(
+    private creditCoreCalculating: CreditManagerCalculationCore,
+    private creditCoreChecking: CreditManagerCheckingCore)
+  {}
 
   // Расчет кредита: неизвестна сумма кредита
   public async findAmount(
@@ -25,11 +29,11 @@ export class CreditManagerService {
       throw new PeriodZeroException();
     }
 
-    credit.amount = this.creditManagerCore.getAmount(credit);
+    credit.amount = this.creditCoreCalculating.getAmount(credit);
 
     return credit.paymentType == EPaymentType.differ
-      ? this.creditManagerCore.monthlyStatementDiff(credit)
-      : this.creditManagerCore.monthlyStatementAnn(credit);
+      ? this.creditCoreCalculating.monthlyStatementDiff(credit)
+      : this.creditCoreCalculating.monthlyStatementAnn(credit);
   }
 
   // Расчет кредита: неизвестен процент по кредиту
@@ -44,11 +48,11 @@ export class CreditManagerService {
       throw new PeriodZeroException();
     }
 
-    credit.percent = this.creditManagerCore.getPercent(credit);
+    credit.percent = this.creditCoreCalculating.getPercent(credit);
 
     return credit.paymentType == EPaymentType.differ
-      ? this.creditManagerCore.monthlyStatementDiff(credit)
-      : this.creditManagerCore.monthlyStatementAnn(credit);
+      ? this.creditCoreCalculating.monthlyStatementDiff(credit)
+      : this.creditCoreCalculating.monthlyStatementAnn(credit);
   }
 
   // Расчет кредита: неизвестен срок кредита
@@ -63,11 +67,11 @@ export class CreditManagerService {
       throw new PercentZeroException();
     }
 
-    credit.period = this.creditManagerCore.getPeriod(credit);
+    credit.period = this.creditCoreCalculating.getPeriod(credit);
 
     return credit.paymentType == EPaymentType.differ
-      ? this.creditManagerCore.monthlyStatementDiff(credit)
-      : this.creditManagerCore.monthlyStatementAnn(credit);
+      ? this.creditCoreCalculating.monthlyStatementDiff(credit)
+      : this.creditCoreCalculating.monthlyStatementAnn(credit);
   }
 
   // Расчет кредита: неизвестен ежемесячный платеж
@@ -89,9 +93,53 @@ export class CreditManagerService {
     if (credit.paymentType == EPaymentType.differ) {
       credit.payment = credit.amount / credit.period;
     } else {
-      credit.payment = this.creditManagerCore.getPayment(credit);
+      credit.payment = this.creditCoreCalculating.getPayment(credit);
     }
 
-    return this.creditManagerCore.monthlyStatementDiff(credit);
+    return this.creditCoreCalculating.monthlyStatementDiff(credit);
+  }
+
+  // Проверка кредита
+  public async check(
+    credit: CreditCalculationDto,
+  ): Promise<CreditPaymentDto[]> {
+    const realAmount = this.creditCoreChecking.getAmount(
+      credit.percent,
+      credit.period,
+      credit.payment,
+    );
+    const realPercent = this.creditCoreChecking.getPercent(
+      credit.amount,
+      credit.period,
+      credit.payment,
+    );
+    const realPeriod = this.creditCoreChecking.getPeriod(
+      credit.amount,
+      credit.percent,
+      credit.payment,
+    );
+    const realPayment = this.creditCoreChecking.getPayment(
+      credit.amount,
+      credit.percent,
+      credit.period,
+    );
+
+    const details = this.creditCoreChecking.details(credit, realPercent);
+
+    const percentPayed = array_sum(array_map(function ($e) {
+      return $e['percent'];
+    }, $details));
+
+    return {
+      credit: credit,
+      realAmount: realAmount,
+      realPercent: realPercent,
+      realPeriod: realPeriod,
+      realPayment: realPayment,
+      percentPayed: percentPayed,
+      hiddenOverpayment:
+        credit.payment * credit.period - realPayment * credit.period,
+      details: details,
+    };
   }
 }

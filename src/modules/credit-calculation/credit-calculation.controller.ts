@@ -20,7 +20,7 @@ import { JoiValidationPipe } from '../../common/pipes/joy.validation.pipe';
 import { CreditCalculationCreateDto } from './dto/credit-calculation.create.dto';
 import { CreditCalculationDto } from './dto/credit-calculation.dto';
 import { JwtUser } from '../../common/decorators/user.decorator';
-import { CreditCalculationCreateSchema } from './schemas/credit-calculation.crate.schema';
+import { CreditCalculationCreateSchema } from './schemas/credit-calculation.create.schema';
 import { AccessTokenGuard } from '../../common/guards/accessToken.guard';
 
 @ApiTags('Расчет кредита')
