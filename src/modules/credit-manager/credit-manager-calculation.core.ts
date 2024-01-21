@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreditCalculationDto } from '../credit-calculation/dto/credit-calculation.dto';
-import { CreditPaymentDto } from '../credit-calculation/dto/credit-payment.dto';
+import { CreditPaymentCalculationDto } from '../credit-calculation/dto/credit-payment-calculation.dto';
 import {
   AmountZeroException,
   DivisionToZeroException,
@@ -135,8 +135,8 @@ export class CreditManagerCalculationCore {
   // График дифферинцированных платежей
   public async monthlyStatementDiff(
     credit: CreditCalculationDto,
-  ): Promise<CreditPaymentDto[]> {
-    const details: CreditPaymentDto[] = [];
+  ): Promise<CreditPaymentCalculationDto[]> {
+    const details: CreditPaymentCalculationDto[] = [];
 
     let insetBalance: number = credit.amount;
     let currentPaymentDate = new Date();
@@ -194,8 +194,8 @@ export class CreditManagerCalculationCore {
   // График аннуитентных платежей
   public async monthlyStatementAnn(
     credit: CreditCalculationDto,
-  ): Promise<CreditPaymentDto[]> {
-    const details: CreditPaymentDto[] = [];
+  ): Promise<CreditPaymentCalculationDto[]> {
+    const details: CreditPaymentCalculationDto[] = [];
 
     let insetBalance: number = credit.amount;
     let currentPaymentDate = new Date();

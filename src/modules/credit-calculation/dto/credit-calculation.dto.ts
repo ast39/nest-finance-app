@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ECreditSubject, EPaymentType } from '@prisma/client';
-import { CreditPaymentDto } from './credit-payment.dto';
+import { CreditPaymentCalculationDto } from './credit-payment-calculation.dto';
 
 // Объект расчета кредита
 export class CreditCalculationDto {
@@ -97,5 +97,5 @@ export class CreditCalculationDto {
     format: 'float',
     required: false,
   })
-  payments?: CreditPaymentDto[];
+  payments?: CreditPaymentCalculationDto[];
 }

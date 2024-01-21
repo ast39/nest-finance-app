@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Объект платежа
-export class CreditPaymentDto {
+export class CreditPaymentCalculationDto {
   @ApiProperty({
     title: 'Дата платежа',
     description: 'Дата платежа',

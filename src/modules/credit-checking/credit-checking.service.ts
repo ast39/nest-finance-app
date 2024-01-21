@@ -3,10 +3,7 @@ import { PrismaService } from '../../prisma';
 import { CreditCheckingRepository } from './credit-checking.repository';
 import { CreditCheckingCreateDto } from './dto/credit-checking.create.dto';
 import { CreditCheckingDto } from './dto/credit-checking.dto';
-import {
-  CheckingNotFoundException,
-  CheckingOtherOwnerException,
-} from './exeptions/credit-checking.exeptions';
+import { CheckingNotFoundException, CheckingOtherOwnerException } from "./exeptions/credit-checking.exeptions";
 import { CreditManagerService } from '../credit-manager/credit-manager.service';
 
 @Injectable()
@@ -28,13 +25,7 @@ export class CreditCheckingService {
         throw new CheckingNotFoundException();
       }
 
-      checking.overpay = checking.payments
-        .map((element) => {
-          return element.percent;
-        })
-        .reduce((percent, x) => percent + x, 0);
-
-      return checking;
+      return await this.creditManagerService.check(checking);
     });
   }
 

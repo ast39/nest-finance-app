@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { CreditCalculationDto } from "../credit-calculation/dto/credit-calculation.dto";
-import { CreditPaymentDto } from "../credit-calculation/dto/credit-payment.dto";
-import { DivisionToZeroException, PercentZeroException } from "./exeptions/credit-manager.exeptions";
+import { Injectable } from '@nestjs/common';
+import { DivisionToZeroException } from './exeptions/credit-manager.exeptions';
+import { CreditCheckingDto } from '../credit-checking/dto/credit-checking.dto';
+import { CreditPaymentCheckingDto } from '../credit-checking/dto/credit-payment-checking.dto';
 
 @Injectable()
 export class CreditManagerCheckingCore {
@@ -68,7 +68,7 @@ export class CreditManagerCheckingCore {
       }
     } while (payment < creditPaymentMin || payment > creditPaymentMax);
 
-    return creditPercent;
+    return Math.round(creditPercent * 100) / 100;
   }
 
   // Проверка кредита: проверяем срок кредита
@@ -99,8 +99,11 @@ export class CreditManagerCheckingCore {
   }
 
   // Детализация проверки кредита
-  public details(credit: CreditCalculationDto, realPercent: number) {
-    const details: [] = [];
+  public details(
+    credit: CreditCheckingDto,
+    realPercent: number,
+  ): CreditPaymentCheckingDto[] {
+    const details: CreditPaymentCheckingDto[] = [];
     let inset: number = credit.amount;
 
     for (let month: number = 1; month <= credit.period; month++) {
@@ -108,34 +111,28 @@ export class CreditManagerCheckingCore {
         break;
       }
 
-      const monthlyDetails = {
-        inset: Math.ceil(inset),
-        percent: Math.ceil((inset * realPercent) / 12 / 100),
-        body: 0,
-        payment: 0,
-        outset: 0,
-      };
+      inset = Math.ceil(inset);
+      const percent = Math.ceil((inset * realPercent) / 12 / 100);
 
-      monthlyDetails.body = Math.ceil(credit.payment - monthlyDetails.percent);
-      monthlyDetails.payment = Math.ceil(
-        monthlyDetails.percent + monthlyDetails.body,
-      );
-      monthlyDetails.outset = Math.ceil(
-        monthlyDetails.inset - monthlyDetails.body,
-      );
+      let body = Math.ceil(credit.payment - percent);
+      let payment = Math.ceil(percent + body);
+      let outset = Math.ceil(inset - body);
 
-      if (
-        monthlyDetails.outset < 0 ||
-        (month == credit.period && monthlyDetails.outset > 0)
-      ) {
-        monthlyDetails.body = monthlyDetails.body + monthlyDetails.outset;
-        monthlyDetails.payment = monthlyDetails.payment + monthlyDetails.outset;
-        monthlyDetails.outset = 0;
+      if (outset < 0 || (month == credit.period && outset > 0)) {
+        body = body + outset;
+        payment = payment + outset;
+        outset = 0;
       }
 
-      inset = monthlyDetails.outset;
+      inset = outset;
 
-      details.push(monthlyDetails);
+      details.push({
+        insetBalance: inset,
+        payment: payment,
+        percent: percent,
+        body: body,
+        outsetBalance: outset,
+      });
     }
 
     return details;

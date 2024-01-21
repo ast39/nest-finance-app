@@ -1,6 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ECreditSubject, EPaymentType } from '@prisma/client';
-import { CreditPaymentDto } from './credit-payment.dto';
 
 // Объект расчета кредита
 export class CreditCheckingDto {
@@ -107,7 +105,7 @@ export class CreditCheckingDto {
     format: 'float',
     required: true,
   })
-  overpay?: number;
+  percentPayed?: number;
 
   @ApiProperty({
     title: 'Скрытая переплата',
@@ -119,12 +117,11 @@ export class CreditCheckingDto {
   hiddenOverpayment?: number;
 
   @ApiProperty({
-    title: 'Платежи',
-    description: 'График платежей по кредиту',
-    type: Array,
-    isArray: true,
+    title: 'Итоговая переплата',
+    description: 'Итоговая переплата по кредиту',
+    type: Number,
     format: 'float',
-    required: false,
+    required: true,
   })
-  payments?: CreditPaymentDto[];
+  totalOverpay?: number;
 }

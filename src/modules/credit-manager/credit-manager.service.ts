@@ -6,21 +6,23 @@ import {
 } from './exeptions/credit-manager.exeptions';
 import { EPaymentType } from '@prisma/client';
 import { CreditCalculationDto } from '../credit-calculation/dto/credit-calculation.dto';
-import { CreditPaymentDto } from '../credit-calculation/dto/credit-payment.dto';
+import { CreditPaymentCalculationDto } from '../credit-calculation/dto/credit-payment-calculation.dto';
 import { CreditManagerCalculationCore } from './credit-manager-calculation.core';
-import { CreditManagerCheckingCore } from "./credit-manager-checking.core";
+import { CreditManagerCheckingCore } from './credit-manager-checking.core';
+import { CreditCheckingDto } from '../credit-checking/dto/credit-checking.dto';
+import { CreditPaymentCheckingDto } from '../credit-checking/dto/credit-payment-checking.dto';
 
 @Injectable()
 export class CreditManagerService {
   constructor(
     private creditCoreCalculating: CreditManagerCalculationCore,
-    private creditCoreChecking: CreditManagerCheckingCore)
-  {}
+    private creditCoreChecking: CreditManagerCheckingCore,
+  ) {}
 
   // Расчет кредита: неизвестна сумма кредита
   public async findAmount(
     credit: CreditCalculationDto,
-  ): Promise<CreditPaymentDto[]> {
+  ): Promise<CreditPaymentCalculationDto[]> {
     if (credit.percent <= 0) {
       throw new PercentZeroException();
     }
@@ -39,7 +41,7 @@ export class CreditManagerService {
   // Расчет кредита: неизвестен процент по кредиту
   public async findPercent(
     credit: CreditCalculationDto,
-  ): Promise<CreditPaymentDto[]> {
+  ): Promise<CreditPaymentCalculationDto[]> {
     if (credit.amount <= 0) {
       throw new AmountZeroException();
     }
@@ -58,7 +60,7 @@ export class CreditManagerService {
   // Расчет кредита: неизвестен срок кредита
   public async findPeriod(
     credit: CreditCalculationDto,
-  ): Promise<CreditPaymentDto[]> {
+  ): Promise<CreditPaymentCalculationDto[]> {
     if (credit.amount <= 0) {
       throw new AmountZeroException();
     }
@@ -77,7 +79,7 @@ export class CreditManagerService {
   // Расчет кредита: неизвестен ежемесячный платеж
   public async findPayment(
     credit: CreditCalculationDto,
-  ): Promise<CreditPaymentDto[]> {
+  ): Promise<CreditPaymentCalculationDto[]> {
     if (credit.amount <= 0) {
       throw new AmountZeroException();
     }
@@ -100,9 +102,7 @@ export class CreditManagerService {
   }
 
   // Проверка кредита
-  public async check(
-    credit: CreditCalculationDto,
-  ): Promise<CreditPaymentDto[]> {
+  public async check(credit: CreditCheckingDto): Promise<CreditCheckingDto> {
     const realAmount = this.creditCoreChecking.getAmount(
       credit.percent,
       credit.period,
@@ -125,23 +125,24 @@ export class CreditManagerService {
     );
 
     const details = this.creditCoreChecking.details(credit, realPercent);
-
     const percentPayed = details
       .map((element) => {
         return element.percent;
       })
       .reduce((percent, x) => percent + x, 0);
 
-    return {
-      credit: credit,
-      realAmount: realAmount,
-      realPercent: realPercent,
-      realPeriod: realPeriod,
-      realPayment: realPayment,
-      percentPayed: percentPayed,
-      hiddenOverpayment:
-        credit.payment * credit.period - realPayment * credit.period,
-      details: details,
-    };
+    const response: CreditCheckingDto = credit;
+    response.realAmount = realAmount;
+    response.realPercent = realPercent;
+    response.realPeriod = realPeriod;
+    response.realPayment = realPayment;
+    response.percentPayed = percentPayed;
+    response.hiddenOverpayment =
+      credit.payment * credit.period - realPayment * credit.period;
+    response.totalOverpay =
+      percentPayed +
+      (credit.payment * credit.period - realPayment * credit.period);
+
+    return response;
   }
 }

@@ -1,15 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Объект платежа
-export class CreditPaymentDto {
-  @ApiProperty({
-    title: 'Дата платежа',
-    description: 'Дата платежа',
-    type: Date,
-    required: true,
-  })
-  paymentDate: Date;
-
+export class CreditPaymentCheckingDto {
   @ApiProperty({
     title: 'Входящий долг',
     description: 'Входящий долг',
@@ -54,12 +46,4 @@ export class CreditPaymentDto {
     required: true,
   })
   outsetBalance: number;
-
-  @ApiProperty({
-    title: 'Статус',
-    description: 'Исполнен ли платеж',
-    type: Boolean,
-    required: true,
-  })
-  status: boolean;
 }
